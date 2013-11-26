@@ -19,6 +19,10 @@ char * strerror (int errnum)
 	return INVOKE_ORIG_FUNC(strerror)(errnum);
 }
 
+char * strerror_r (int errnum, char *buf, size_t n)
+{
+	return INVOKE_ORIG_FUNC(strerror_r)(errnum, buf, n);
+}
 void error (int status, int errnum, const char *format, ...)
 {
 	int errnoBackup = errno;
@@ -28,3 +32,5 @@ void error (int status, int errnum, const char *format, ...)
 	va_end(args);
 	errno = errnoBackup;
 }
+
+//<Head> !!auto generated function wrapper. do not change this comment

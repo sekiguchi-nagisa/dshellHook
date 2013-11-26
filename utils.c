@@ -13,13 +13,14 @@
 #define MAX_FILE_NAME 512
 
 #define SET_ELEMENT(errnum) strncpy(errorCodeTable[errnum], #errnum, MAX_ERROR_CODE_SIZE)
-#define SAVE_FUNC(funcname) orignalFuncTable[FUNC_INDEX(funcname)] = dlsym(RTLD_NEXT, #funcname)
 
 static char *ereportEnv = "DSHELL_EREPORT";
-static FuncIndex orignalFuncSize = max_index;
+static FuncIndex orignalFuncSize = func_index_size;
 static char errorCodeTable[MAX_ERRNO][MAX_ERROR_CODE_SIZE];
 static char reportFileName[MAX_FILE_NAME];
-static void **orignalFuncTable;	// cannot change this name
+static void **originalFuncTable;	// cannot change this name
+// prototype
+void saveFunc(void **originalFuncTable);
 
 void initErrorCodeMap()
 {
@@ -180,10 +181,14 @@ void saveOriginalFunction()
 		exit(1);
 	}
 	strncpy(reportFileName, envValue, MAX_FILE_NAME);
-	orignalFuncTable = (void **)malloc(sizeof(void *) * orignalFuncSize);
+	originalFuncTable = (void **)malloc(sizeof(void *) * orignalFuncSize);
 	SAVE_FUNC(perror);
 	SAVE_FUNC(strerror);
+	SAVE_FUNC(strerror_r);
 	SAVE_FUNC(error);
+
+	// save functions
+	saveFunc(originalFuncTable);
 }
 
 void reportError(const char *message)
@@ -205,9 +210,9 @@ void reportError(const char *message)
 	errno = errnoBackup;
 }
 
-void *getOriginalFunction(FuncIndex index)
+void *getOriginalFunction(int index)
 {
-	return orignalFuncTable[index];
+	return originalFuncTable[index];
 }
 
 void error_varg(int status, int errnum, const char *format, va_list args)
@@ -227,4 +232,5 @@ void error_varg(int status, int errnum, const char *format, va_list args)
 	if(status != 0) {
 		exit(status);
 	}
+	error_message_count++;
 }
