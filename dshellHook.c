@@ -4,11 +4,27 @@ __attribute__((constructor))
 static void init()
 {
 	initErrorCodeMap();
-	setErrorReportFileName( "DSHELL_ERROR_FILE");
 	saveOriginalFunction();
 }
 
-void perror (const char *message)	// hook function
+// hooked library function
+void perror (const char *message)
 {
-	INVOKE_ORIG_FUNC(perror)("");
+	reportError(message);
+	INVOKE_ORIG_FUNC(perror)(message);
+}
+
+char * strerror (int errnum)
+{
+	return INVOKE_ORIG_FUNC(strerror)(errnum);
+}
+
+void error (int status, int errnum, const char *format, ...)
+{
+	int errnoBackup = errno;
+	va_list args;
+	va_start(args, format);
+	error_varg(status, errnum, format, args);
+	va_end(args);
+	errno = errnoBackup;
 }

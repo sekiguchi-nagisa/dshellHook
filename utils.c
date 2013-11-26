@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
+#include <error.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #include "utils.h"
@@ -15,6 +15,7 @@
 #define SET_ELEMENT(errnum) strncpy(errorCodeTable[errnum], #errnum, MAX_ERROR_CODE_SIZE)
 #define SAVE_FUNC(funcname) orignalFuncTable[FUNC_INDEX(funcname)] = dlsym(RTLD_NEXT, #funcname)
 
+static char *ereportEnv = "DSHELL_EREPORT";
 static FuncIndex orignalFuncSize = max_index;
 static char errorCodeTable[MAX_ERRNO][MAX_ERROR_CODE_SIZE];
 static char reportFileName[MAX_FILE_NAME];
@@ -27,7 +28,7 @@ void initErrorCodeMap()
 		return;
 	}
 	called = 1;
-	strcpy(errorCodeTable[0], "SUCCESS");
+	strncpy(errorCodeTable[0], "SUCCESS", MAX_ERROR_CODE_SIZE);
 	SET_ELEMENT(EPERM            );
 	SET_ELEMENT(ENOENT           );
 	SET_ELEMENT(ESRCH            );
@@ -161,37 +162,69 @@ void initErrorCodeMap()
 	SET_ELEMENT(EHWPOISON        );
 }
 
-char *getErrorCodeString(int errorNum) {
+static char *getErrorCodeString(int errorNum) {
 	if(errorNum < 0 || errorNum > MAX_ERRNO) {
-		fprintf(stderr, "invalid errno: %d", errorNum);
-		return NULL;
+		fprintf(stderr, "invalid errno: %d\n", errorNum);
+		exit(1);
 	}
 	char *codeString = (char *)malloc(sizeof(char) * MAX_ERROR_CODE_SIZE);
 	strncpy(codeString, errorCodeTable[errorNum], MAX_ERROR_CODE_SIZE);
 	return codeString;
 }
 
-void setErrorReportFileName(char *envKey)
-{
-	strncpy(reportFileName, getenv(envKey), MAX_FILE_NAME);
-}
-
 void saveOriginalFunction()
 {
+	char *envValue = getenv(ereportEnv);
+	if(envValue == NULL) {
+		fprintf(stderr, "empty env variable: %s\n", ereportEnv);
+		exit(1);
+	}
+	strncpy(reportFileName, envValue, MAX_FILE_NAME);
 	orignalFuncTable = (void **)malloc(sizeof(void *) * orignalFuncSize);
 	SAVE_FUNC(perror);
+	SAVE_FUNC(strerror);
+	SAVE_FUNC(error);
 }
 
-void reportError(int errorCode)
+void reportError(const char *message)
 {
+	int errnoBackup = errno;
 	FILE *fp = fopen(reportFileName, "a");
 	if(fp == NULL) {
 		fprintf(stderr, "error report file open faild: %s\n", reportFileName);
 		exit(1);
 	}
+	char *errorCode = getErrorCodeString(errnoBackup);
+	if(message == NULL) {
+		fprintf(fp, "%s\n", errorCode);
+	} else {
+		fprintf(fp, "%s::%s\n", errorCode, message);
+	}
+	free(errorCode);
+	fclose(fp);
+	errno = errnoBackup;
 }
 
 void *getOriginalFunction(FuncIndex index)
 {
 	return orignalFuncTable[index];
+}
+
+void error_varg(int status, int errnum, const char *format, va_list args)
+{
+	int bufferSize = 2048;
+	char msgBuf[bufferSize];
+	vsnprintf(msgBuf, bufferSize, format, args);
+	errno = errnum;
+	reportError(msgBuf);
+
+	fprintf(stderr, "%s: ", program_invocation_name);
+	fprintf(stderr, "%s", msgBuf);
+	if(errnum != 0) {
+		fprintf(stderr, ": %s", INVOKE_ORIG_FUNC(strerror)(errnum));
+	}
+	fprintf(stderr, "\n");
+	if(status != 0) {
+		exit(status);
+	}
 }
