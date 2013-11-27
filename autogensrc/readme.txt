@@ -42,3 +42,14 @@ typedef enum {
 #endif /* FUNCINDEX_H_ */
 
 ################ end of file ################
+
+################ autogensrc/headerList.h ################
+
+#ifndef HEADERLIST_H_
+#define HEADERLIST_H_
+
+// this is a stub file
+
+#endif /* HEADERLIST_H_ */
+
+################ end of file ################

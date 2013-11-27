@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include "define.h"
+#include "autogensrc/headerList.h"
 
 #define INVOKE_ORIG_FUNC __INVOKE_ORIG_FUNC
 
