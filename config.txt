@@ -1,0 +1,11 @@
+[header] sys/mman.h. 
+[func/]
+void * mmap (void *address, size_t length, int protect, int flags, int filedes, off_t offset) -1
+void * mmap64 (void *address, size_t length, int protect, int flags, int filedes, off64_t offset) -1
+
+[/func]
+
+[header] errno.h. 
+[func/]
+void perror (const char *message) <stub>
+[/func]
