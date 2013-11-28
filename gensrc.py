@@ -23,7 +23,6 @@ class FuncInfo:
         parse_mode = in_ret_type
         buf = ""
         bracket_count = 0
-        print "construct FuncInfo"
         for ch in line:
             if parse_mode == in_ret_type:
                 if ch == " ":    # set ret_type
@@ -93,8 +92,7 @@ class FuncInfo:
                     buf += ch
 
     def get_prototype(self):
-        proto = ""
-        proto += self.ret_type + " "
+        proto = self.ret_type + " "
         proto += self.func_name
         proto += "("
         i = 0
@@ -289,7 +287,7 @@ def main():
         line = line.strip()
         if not in_func:
             if line.startswith("[header]"):
-                print "match: [header]"
+                print "match: [header] %s" % line
                 header_list.parse(line)
             elif line.startswith("[func/]"):
                 print "match: [func/]"
