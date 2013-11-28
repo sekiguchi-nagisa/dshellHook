@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <error.h>
-#include <dlfcn.h>
 #include <unistd.h>
 #include "utils.h"
 
@@ -15,12 +14,12 @@
 #define SET_ELEMENT(errnum) strncpy(errorCodeTable[errnum], #errnum, MAX_ERROR_CODE_SIZE)
 
 static char *ereportEnv = "DSHELL_EREPORT";
-static FuncIndex orignalFuncSize = func_index_size;
+static FuncIndex originalFuncSize = func_index_size;
 static char errorCodeTable[MAX_ERRNO][MAX_ERROR_CODE_SIZE];
 static char reportFileName[MAX_FILE_NAME];
 static void **originalFuncTable;	// cannot change this name
 // prototype
-void saveFunc(void **originalFuncTable);
+void saveFuncs(void **originalFuncTable);
 
 void initErrorCodeMap()
 {
@@ -181,14 +180,8 @@ void saveOriginalFunction()
 		exit(1);
 	}
 	strncpy(reportFileName, envValue, MAX_FILE_NAME);
-	originalFuncTable = (void **)malloc(sizeof(void *) * orignalFuncSize);
-	SAVE_FUNC(perror);
-	SAVE_FUNC(strerror);
-	SAVE_FUNC(strerror_r);
-	SAVE_FUNC(error);
-
-	// save functions
-	saveFunc(originalFuncTable);
+	originalFuncTable = (void **)malloc(sizeof(void *) * originalFuncSize);
+	saveFuncs(originalFuncTable);
 }
 
 void reportError(const char *message)

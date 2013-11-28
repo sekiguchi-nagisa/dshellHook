@@ -1,11 +1,14 @@
+[header] errno.h. 
+[func/]
+void perror (const char *message) <stub>
+char * strerror (int errnum) <stub>
+char * strerror_r (int errnum, char *buf, size_t n) <stub>
+void error (int status, int errnum, const char *format, ...) <stub>
+[/func]
+
 [header] sys/mman.h. 
 [func/]
 void * mmap (void *address, size_t length, int protect, int flags, int filedes, off_t offset) -1
 void * mmap64 (void *address, size_t length, int protect, int flags, int filedes, off64_t offset) -1
 
-[/func]
-
-[header] errno.h. 
-[func/]
-void perror (const char *message) <stub>
 [/func]

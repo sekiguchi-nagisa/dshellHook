@@ -1,6 +1,8 @@
 #ifndef HEADERLIST_H_
 #define HEADERLIST_H_
 
-// this is a stub file
+// auto generated header file
+#include <errno.h>
+#include <sys/mman.h>
 
 #endif /* HEADERLIST_H_ */

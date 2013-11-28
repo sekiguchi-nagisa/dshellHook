@@ -189,13 +189,19 @@ class FuncType(HeaderBuilder):
         for arg_decl in func_info.args_decl:
             arg_type = ""
             temp = arg_decl.split(" ")
-            if len(temp) == 2:
+            size = len(temp)
+            if size == 1:
+                if temp[0] == "...":
+                    arg_type = temp[0]
+                else:
+                    print "invalid args decl: %s" % arg_decl
+                    sys.exit(1)
+            elif size == 2:
                 arg_type = temp[0]
                 if temp[1].startswith("*"):
                     arg_type += " *"
-            elif len(temp) > 2:
+            elif size > 2:
                 i = 0
-                size = len(temp)
                 while i < size - 1:
                     if i != 0:
                         arg_type += " "
@@ -227,9 +233,12 @@ class SaveFunc:
     def write_to_file(self):
         print "write to " + self.file_name
         f = open(self.file_name, "w")
+        f.write("#define _GNU_SOURCE\n")
         f.write("#include \"../define.h\"\n")
+        f.write("#include <dlfcn.h>\n")
         f.write("\n")
         f.write("// auto generated source file\n")
+        f.write("#define SAVE_FUNC(funcname) originalFuncTable[FUNC_INDEX(funcname)] = dlsym(RTLD_NEXT, #funcname)\n")
         f.write("void saveFuncs(void **originalFuncTable)\n")
         f.write("{\n")
         ## write save func
