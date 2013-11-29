@@ -290,7 +290,7 @@ def main():
     f.close()
 
     print "######################"
-    print "#      parse file    #"
+    print "#      Parse File    #"
     print "######################\n"
     for line in lines:
         line = line.strip()
@@ -314,11 +314,11 @@ def main():
                 func_type.append(func_info)
                 save_func.append(func_info.func_name)
                 hook_file.append(func_info)
-    # generate file in ./autogensrc/
+    # generate files in ./autogensrc/
     print "######################"
-    print "#   generate files   #"
+    print "#   Generate Files   #"
     print "######################\n"
-    header_list .write_to_file()
+    header_list.write_to_file()
     func_index.write_to_file()
     func_type.write_to_file()
     save_func.write_to_file()

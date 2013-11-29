@@ -13,7 +13,7 @@
 void initErrorCodeMap();
 void saveOriginalFunction();
 void *getOriginalFunction(int index);
-void reportError(const char *message);
+void reportError(int errnum, const char *message);
 
 void error_varg(int status, int errnum, const char *format, va_list args);
 

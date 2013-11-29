@@ -10,19 +10,22 @@ static void init()
 // hooked library function
 void perror (const char *message)
 {
-	reportError(message);
+	reportError(errno, message);
 	INVOKE_ORIG_FUNC(perror)(message);
 }
 
 char * strerror (int errnum)
 {
+	reportError(errnum, NULL);
 	return INVOKE_ORIG_FUNC(strerror)(errnum);
 }
 
 char * strerror_r (int errnum, char *buf, size_t n)
 {
+	reportError(errnum, NULL);
 	return INVOKE_ORIG_FUNC(strerror_r)(errnum, buf, n);
 }
+
 void error (int status, int errnum, const char *format, ...)
 {
 	int errnoBackup = errno;
@@ -34,3 +37,12 @@ void error (int status, int errnum, const char *format, ...)
 }
 
 //<Head> !!auto generated function wrapper. do not change this comment
+// example
+void * mmap(void *address, size_t length, int protect, int flags, int filedes, off_t offset)
+{
+	void * ret = INVOKE_ORIG_FUNC(mmap)(address, length, protect, flags, filedes, offset);
+	if(ret == (void *)-1) {
+		reportError(errno, NULL);
+	}
+	return ret;
+}

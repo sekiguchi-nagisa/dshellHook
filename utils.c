@@ -184,7 +184,7 @@ void saveOriginalFunction()
 	saveFuncs(originalFuncTable);
 }
 
-void reportError(const char *message)
+void reportError(int errnum, const char *message)
 {
 	int errnoBackup = errno;
 	FILE *fp = fopen(reportFileName, "a");
@@ -192,7 +192,7 @@ void reportError(const char *message)
 		fprintf(stderr, "error report file open faild: %s\n", reportFileName);
 		exit(1);
 	}
-	char *errorCode = getErrorCodeString(errnoBackup);
+	char *errorCode = getErrorCodeString(errnum);
 	if(message == NULL) {
 		fprintf(fp, "%s\n", errorCode);
 	} else {
@@ -213,8 +213,7 @@ void error_varg(int status, int errnum, const char *format, va_list args)
 	int bufferSize = 2048;
 	char msgBuf[bufferSize];
 	vsnprintf(msgBuf, bufferSize, format, args);
-	errno = errnum;
-	reportError(msgBuf);
+	reportError(errnum, msgBuf);
 
 	fprintf(stderr, "%s: ", program_invocation_name);
 	fprintf(stderr, "%s", msgBuf);
