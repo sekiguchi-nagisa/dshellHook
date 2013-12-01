@@ -11,14 +11,12 @@ class FuncInfo:
         self.ret_type = ""
         self.func_name = ""
         self.args_decl = []
-        self.failed_value = ""
         self.options = []
         # define parse mode
         in_ret_type = 0
         in_name = 1
         in_arg = 2
-        in_failed = 3
-        in_option = 4
+        in_option = 3
 
         parse_mode = in_ret_type
         buf = ""
@@ -47,7 +45,7 @@ class FuncInfo:
                 elif ch == ")":
                     bracket_count -= 1
                     if bracket_count == 0:
-                        parse_mode = in_failed
+                        parse_mode = in_option
                         self.args_decl = buf.split(", ")
                         buf = ""
                     else:
@@ -56,21 +54,6 @@ class FuncInfo:
                 elif ch == " ":
                     if bracket_count != 0:
                         buf += ch
-                else:
-                    buf += ch
-            elif parse_mode == in_failed:
-                if ch == "<":
-                    bracket_count += 1
-                    parse_mode = in_option
-                    if buf == "":
-                        buf += ch
-                    else:
-                        self.failed_value = buf
-                        buf = ""
-                elif ch == " ":
-                    if buf != "":
-                        self.failed_value = buf
-                        parse_mode = in_option
                 else:
                     buf += ch
             else:
@@ -86,7 +69,7 @@ class FuncInfo:
                     else:
                         print "invalid option: %s" % line
                         sys.exit(1)
-                elif ch == " " or ch == "\t" or ch == "\n":
+                elif ch == " " or ch == "\t":
                     pass
                 else:
                     buf += ch
@@ -104,6 +87,25 @@ class FuncInfo:
             i += 1
         proto += ")"
         return proto
+
+    def find_option(self, pattern):
+        for option in self.options:
+            if option.startswith(pattern):
+                found_option = option[0:]
+                return found_option
+        return None
+
+    def get_args(self):
+        args = []
+        for arg_decl in self.args_decl:
+            temp = arg_decl.split(" ")
+            size = len(temp)
+            arg = temp[size - 1]
+            if arg.startswith("*"):
+                args.append(arg[1:])
+            else:
+                args.append(arg)
+        return args
 
 
 class HeaderBuilder:
@@ -265,9 +267,47 @@ class HookFile:
             f.write("\n")
         f.close()
 
+    @staticmethod
+    def create_fail_check(func_info):
+        option_f = func_info.find_option("<f:")
+        option_s = func_info.find_option("<s:")
+
+        if option_f is not None or option_s is not None:
+            if option_f is not None:
+                ret = "ret == "
+                value = option_f[1:len(option_f) - 1].split(":")[1]
+            else:
+                ret = "ret != "
+                value = option_s[1:len(option_s) - 1].split(":")[1]
+            if value != "NULL":
+                ret += "(" + func_info.ret_type + ")"
+            return ret + value
+        print "invalid options: %s" % func_info.options
+        sys.exit(1)
+
     def append(self, func_info):
         head = func_info.get_prototype() + "\n"
+
+        if func_info.find_option("<stub>") is not None:
+            self.buf.append(head + "{\n" + "\t//function stub\n" + "}\n")
+            return
+
         body = ""
+        body += "\t" + func_info.ret_type + " ret = INVOKE_ORIG_FUNC(" + func_info.func_name + ")("
+        args = func_info.get_args()
+        i = 0
+        size = len(args)
+        while i < size:
+            if i != 0:
+                body += ", "
+            body += args[i]
+            i += 1
+        body += ");\n"
+        body += "\tif(" + HookFile.create_fail_check(func_info) + ") {\n"
+        body += "\t\treportError(errno, NULL);\n"
+        body += "\t}\n"
+        body += "\treturn ret;\n"
+
         self.buf.append(head + "{\n" + body + "}\n")
 
 
@@ -307,6 +347,8 @@ def main():
                 in_func = False
             elif line == "" or line == "\t" or line == "\n":
                 pass
+            elif line.startswith("#") or line.startswith("//"):
+                pass    # one line comment
             else:
                 print "parsing at: %s" % line
                 func_info = FuncInfo(line)
