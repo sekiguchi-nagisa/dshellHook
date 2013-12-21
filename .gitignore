@@ -5,3 +5,4 @@
 .project
 .idea
 autogensrc/hook.c.txt
+.log

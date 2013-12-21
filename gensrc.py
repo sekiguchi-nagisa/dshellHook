@@ -5,6 +5,28 @@ import sys
 gen_dir = "./autogensrc/"
 
 
+class DebugUtil:
+    def __init__(self, file_name):
+        self.file_name = file_name
+        self.f = open(self.file_name, "w")
+        self.line_num = 0
+
+    def close_file(self):
+        self.f.close()
+
+    def inc_line_num(self):
+        self.line_num += 1
+
+    def p(self, message):
+        new_msg = "@line {0:04d}:> {1}\n".format(self.line_num, message)
+        print new_msg,
+        self.f.write(new_msg)
+
+    def p_no_line(self, message):
+        print message
+        self.f.write(message + "\n")
+
+
 class FuncInfo:
     def __init__(self, line):
         self.line = line
@@ -49,7 +71,7 @@ class FuncInfo:
                         self.args_decl = buf.split(", ")
                         buf = ""
                     else:
-                        print "invalid args: %s" % line
+                        debug.p("invalid args: " + line)
                         sys.exit(1)
                 elif ch == " ":
                     if bracket_count != 0:
@@ -67,7 +89,7 @@ class FuncInfo:
                         self.options.append(buf)
                         buf = ""
                     else:
-                        print "invalid option: %s" % line
+                        debug.p("invalid option: " + line)
                         sys.exit(1)
                 elif ch == " " or ch == "\t":
                     pass
@@ -141,11 +163,12 @@ class HeaderList(HeaderBuilder):
         elif header[headerlen - 1] == "h":
             self.buf.append("#include <" + header + ">\n")
         else:
-            print "invalid header :%s\n" % header
+            debug.p("invalid header :" + header + "\n")
             sys.exit(1)
 
     def write_to_file(self):
-        print "write to " + self.file_name
+        sorted(set(self.buf), key=self.buf.index)
+        debug.p_no_line("write to " + self.file_name)
         f = open(self.file_name, "w")
         HeaderBuilder.write_head(self, f)
         HeaderBuilder.write_buf(self, f, "")
@@ -158,7 +181,7 @@ class FuncIndex(HeaderBuilder):
         HeaderBuilder.__init__(self, "funcIndex.h")
 
     def write_to_file(self):
-        print "write to " + self.file_name
+        debug.p_no_line("write to " + self.file_name)
         f = open(self.file_name, "w")
         HeaderBuilder.write_head(self, f)
         f.write("#define FUNC_INDEX(funcname) funcname ## _orig_index\n")
@@ -179,7 +202,7 @@ class FuncType(HeaderBuilder):
         HeaderBuilder.__init__(self, "funcType.h")
 
     def write_to_file(self):
-        print "write to " + self.file_name
+        debug.p_no_line("write to " + self.file_name)
         f = open(self.file_name, "w")
         HeaderBuilder.write_head(self, f)
         HeaderBuilder.write_buf(self, f, "")
@@ -196,7 +219,7 @@ class FuncType(HeaderBuilder):
                 if temp[0] == "...":
                     arg_type = temp[0]
                 else:
-                    print "invalid args decl: %s" % arg_decl
+                    debug.p("invalid args decl: " + arg_decl)
                     sys.exit(1)
             elif size == 2:
                 arg_type = temp[0]
@@ -212,7 +235,7 @@ class FuncType(HeaderBuilder):
                 if temp[size - 1].startswith("*"):
                     arg_type += " *"
             else:
-                print "invalid args decl: %s" % arg_decl
+                debug.p("invalid args decl: " + arg_decl)
                 sys.exit(1)
             type_list.append(arg_type)
         cast = "(" + func_info.ret_type + " (*)("
@@ -233,14 +256,11 @@ class SaveFunc:
         self.buf = []
 
     def write_to_file(self):
-        print "write to " + self.file_name
+        debug.p_no_line("write to " + self.file_name)
         f = open(self.file_name, "w")
-        f.write("#define _GNU_SOURCE\n")
-        f.write("#include \"../define.h\"\n")
-        f.write("#include <dlfcn.h>\n")
+        f.write("#include \"../utils.h\"\n")
         f.write("\n")
         f.write("// auto generated source file\n")
-        f.write("#define SAVE_FUNC(funcname) originalFuncTable[FUNC_INDEX(funcname)] = dlsym(RTLD_NEXT, #funcname)\n")
         f.write("void saveFuncs(void **originalFuncTable)\n")
         f.write("{\n")
         ## write save func
@@ -259,7 +279,7 @@ class HookFile:
         self.buf = []
 
     def write_to_file(self):
-        print "write to " + self.file_name
+        debug.p_no_line("write to " + self.file_name)
         f = open(self.file_name, "w")
         f.write("// auto generated source file\n")
         for element in self.buf:
@@ -282,7 +302,7 @@ class HookFile:
             if value != "NULL":
                 ret += "(" + func_info.ret_type + ")"
             return ret + value
-        print "invalid options: %s" % func_info.options
+        debug.p("invalid options: %s" + func_info.options)
         sys.exit(1)
 
     def append(self, func_info):
@@ -293,7 +313,7 @@ class HookFile:
             return
 
         body = ""
-        body += "\t" + func_info.ret_type + " ret = INVOKE_ORIG_FUNC(" + func_info.func_name + ")("
+        body += "\t" + func_info.ret_type + " ret = CALL_ORIG_FUNC(" + func_info.func_name + ")("
         args = func_info.get_args()
         i = 0
         size = len(args)
@@ -311,9 +331,12 @@ class HookFile:
         self.buf.append(head + "{\n" + body + "}\n")
 
 
+debug = DebugUtil("gensrc.log")
+
+
 def main():
     if len(sys.argv) == 1:
-        print "need target file"
+        debug.p_no_line("need target file")
         sys.exit(1)
 
     header_list = HeaderList()
@@ -325,41 +348,44 @@ def main():
     in_func = False
     target_file = sys.argv[1]
     f = open(target_file, "r")
-    print "open target file: %s\n" % target_file
+    debug.p_no_line("open target file: {0}\n".format(target_file))
     lines = f.readlines()
     f.close()
 
-    print "######################"
-    print "#      Parse File    #"
-    print "######################\n"
+    debug.p_no_line("######################")
+    debug.p_no_line("#      Parse File    #")
+    debug.p_no_line("######################\n")
     for line in lines:
-        line = line.strip()
+        debug.inc_line_num()
+        line = line.expandtabs(4).strip()
         if not in_func:
             if line.startswith("[header]"):
-                print "match: [header] %s" % line
+                debug.p("match: [header] {0}".format(line))
                 header_list.parse(line)
             elif line.startswith("[func/]"):
-                print "match: [func/]"
+                debug.p("match: [func/]")
                 in_func = True
+            else:
+                debug.p("skip unused line: " + line)
         else:
             if line.startswith("[/func]"):
-                print "match: [/func]"
+                debug.p("match: [/func]")
                 in_func = False
             elif line == "" or line == "\t" or line == "\n":
-                pass
+                debug.p("skip empty line")
             elif line.startswith("#") or line.startswith("//"):
-                pass    # one line comment
+                debug.p("skip one line comment")
             else:
-                print "parsing at: %s" % line
+                debug.p("parsing at: {0}".format(line))
                 func_info = FuncInfo(line)
                 func_index.append(func_info.func_name)
                 func_type.append(func_info)
                 save_func.append(func_info.func_name)
                 hook_file.append(func_info)
     # generate files in ./autogensrc/
-    print "######################"
-    print "#   Generate Files   #"
-    print "######################\n"
+    debug.p_no_line("######################")
+    debug.p_no_line("#   Generate Files   #")
+    debug.p_no_line("######################\n")
     header_list.write_to_file()
     func_index.write_to_file()
     func_type.write_to_file()

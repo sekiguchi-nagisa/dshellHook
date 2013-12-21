@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dlfcn.h>
 #include <error.h>
 #include <unistd.h>
+#include <sys/syscall.h>
 #include "utils.h"
 
 #define MAX_ERRNO 135
@@ -20,6 +22,30 @@ static char reportFileName[MAX_FILE_NAME];
 static void **originalFuncTable;	// cannot change this name
 // prototype
 void saveFuncs(void **originalFuncTable);
+
+static void reportLoadingError(char *funcname)
+{
+	char *msgPrefix = "dlsym failed: ";
+	int msgSize = strlen(funcname) + strlen(msgPrefix) + 1;
+	char newMsg[msgSize];
+	// concat funcname to msgPrefix
+	int i = 0, index = 0;
+	while(msgPrefix[i] != '\0') {
+		newMsg[index] = msgPrefix[i];
+		i++;
+		index++;
+	}
+	i = 0;
+	while(funcname[i] != '\0') {
+		newMsg[index] = funcname[i];
+		i++;
+		index++;
+	}
+	newMsg[index] = '\n';
+	newMsg[++index]  = '\0';
+	// invloke write syscall
+	syscall(SYS_write, STDERR_FILENO, newMsg, msgSize);
+}
 
 void initErrorCodeMap()
 {
@@ -172,6 +198,16 @@ static char *getErrorCodeString(int errorNum) {
 	return codeString;
 }
 
+void *loadOriginalFuncion(char *funcname)
+{
+	void *funcp = dlsym(RTLD_NEXT, funcname);
+	if(funcp == NULL) {
+		reportLoadingError(funcname);
+		_exit(1);
+	}
+	return funcp;
+}
+
 void saveOriginalFunction()
 {
 	char *envValue = getenv(ereportEnv);
@@ -218,7 +254,7 @@ void error_varg(int status, int errnum, const char *format, va_list args)
 	fprintf(stderr, "%s: ", program_invocation_name);
 	fprintf(stderr, "%s", msgBuf);
 	if(errnum != 0) {
-		fprintf(stderr, ": %s", INVOKE_ORIG_FUNC(strerror)(errnum));
+		fprintf(stderr, ": %s", CALL_ORIG_FUNC(strerror)(errnum));
 	}
 	fprintf(stderr, "\n");
 	if(status != 0) {

@@ -1,9 +1,6 @@
-#define _GNU_SOURCE
-#include "../define.h"
-#include <dlfcn.h>
+#include "../utils.h"
 
 // auto generated source file
-#define SAVE_FUNC(funcname) originalFuncTable[FUNC_INDEX(funcname)] = dlsym(RTLD_NEXT, #funcname)
 void saveFuncs(void **originalFuncTable)
 {
 	SAVE_FUNC(perror);
