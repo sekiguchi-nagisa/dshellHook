@@ -17,7 +17,7 @@ void initErrorCodeMap();
 void *loadOriginalFuncion(char *funcname);
 void saveOriginalFunction();
 void *getOriginalFunction(int index);
-void reportError(int errnum, const char *message);
+void reportError(int errnum, const char *syscallName);
 
 void error_varg(int status, int errnum, const char *format, va_list args);
 

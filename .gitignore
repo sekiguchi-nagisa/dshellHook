@@ -6,3 +6,4 @@
 .idea
 autogensrc/hook.c.txt
 .log
+/gensrc.log

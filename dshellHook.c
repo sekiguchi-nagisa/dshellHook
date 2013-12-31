@@ -10,19 +10,19 @@ static void init()
 // hooked library function
 void perror (const char *message)
 {
-	reportError(errno, message);
+	reportError(errno, "perror");
 	CALL_ORIG_FUNC(perror)(message);
 }
 
 char * strerror (int errnum)
 {
-	reportError(errnum, NULL);
+	reportError(errnum, "strerror");
 	return CALL_ORIG_FUNC(strerror)(errnum);
 }
 
 char * strerror_r (int errnum, char *buf, size_t n)
 {
-	reportError(errnum, NULL);
+	reportError(errnum, "strerror_r");
 	return CALL_ORIG_FUNC(strerror_r)(errnum, buf, n);
 }
 
@@ -42,7 +42,7 @@ void * mmap(void *address, size_t length, int protect, int flags, int filedes, o
 {
 	void * ret = CALL_ORIG_FUNC(mmap)(address, length, protect, flags, filedes, offset);
 	if(ret == (void *)-1) {
-		reportError(errno, NULL);
+		reportError(errno, "mmap");
 	}
 	return ret;
 }

@@ -28,6 +28,20 @@ class DebugUtil:
 
 
 class FuncInfo:
+    funcInfoMap = {}
+
+    @staticmethod
+    def create_func_info(line, line_num):
+        new_func_info = FuncInfo(line)
+        key = new_func_info.func_name
+        if key in FuncInfo.funcInfoMap:
+            orig_line_num = "@line {0:04d}".format(FuncInfo.funcInfoMap[key])
+            debug.p_no_line("  *** warning *** found duplicated line. original: " + orig_line_num)
+            return None
+        else:
+            FuncInfo.funcInfoMap[key] = line_num
+            return new_func_info
+
     def __init__(self, line):
         self.line = line
         self.ret_type = ""
@@ -324,7 +338,7 @@ class HookFile:
             i += 1
         body += ");\n"
         body += "\tif(" + HookFile.create_fail_check(func_info) + ") {\n"
-        body += "\t\treportError(errno, NULL);\n"
+        body += "\t\treportError(errno, \"" + func_info.func_name + "\");\n"
         body += "\t}\n"
         body += "\treturn ret;\n"
 
@@ -377,13 +391,15 @@ def main():
                 debug.p("skip one line comment")
             else:
                 debug.p("parsing at: {0}".format(line))
-                func_info = FuncInfo(line)
+                func_info = FuncInfo.create_func_info(line, debug.line_num)
+                if func_info is None:
+                    continue
                 func_index.append(func_info.func_name)
                 func_type.append(func_info)
                 save_func.append(func_info.func_name)
                 hook_file.append(func_info)
     # generate files in ./autogensrc/
-    debug.p_no_line("######################")
+    debug.p_no_line("\n######################")
     debug.p_no_line("#   Generate Files   #")
     debug.p_no_line("######################\n")
     header_list.write_to_file()

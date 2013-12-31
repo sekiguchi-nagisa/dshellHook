@@ -7,6 +7,7 @@
 #include <error.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
 #include "utils.h"
 
 #define MAX_ERRNO 135
@@ -220,7 +221,7 @@ void saveOriginalFunction()
 	saveFuncs(originalFuncTable);
 }
 
-void reportError(int errnum, const char *message)
+void reportError(int errnum, const char *syscallName)
 {
 	int errnoBackup = errno;
 	FILE *fp = fopen(reportFileName, "a");
@@ -229,11 +230,7 @@ void reportError(int errnum, const char *message)
 		exit(1);
 	}
 	char *errorCode = getErrorCodeString(errnum);
-	if(message == NULL) {
-		fprintf(fp, "%s\n", errorCode);
-	} else {
-		fprintf(fp, "%s::%s\n", errorCode, message);
-	}
+	fprintf(fp, "%d::%s::%s::%s\n", getpid(), program_invocation_name, syscallName, errorCode);
 	free(errorCode);
 	fclose(fp);
 	errno = errnoBackup;
@@ -249,7 +246,7 @@ void error_varg(int status, int errnum, const char *format, va_list args)
 	int bufferSize = 2048;
 	char msgBuf[bufferSize];
 	vsnprintf(msgBuf, bufferSize, format, args);
-	reportError(errnum, msgBuf);
+	reportError(errnum, "error");
 
 	fprintf(stderr, "%s: ", program_invocation_name);
 	fprintf(stderr, "%s", msgBuf);
