@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <sys/epoll.h>
-#include <attr/xattr.h>
 #include <sys/vfs.h>
 #include <sys/statvfs.h>
 #include <linux/futex.h>

@@ -1,5 +1,6 @@
 #include "utils.h"
 
+struct itimerval;
 int getitimer(int which, struct itimerval *curr_value)
 {
 	int ret = CALL_ORIG_FUNC(getitimer)(which, curr_value);

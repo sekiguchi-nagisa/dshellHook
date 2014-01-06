@@ -1,8 +1,7 @@
 #include "utils.h"
-//#include <sys/time.h>
-//#include <sys/resource.h>
 #include <sys/types.h>
 
+struct rlimit;
 int getrlimit(int resource, struct rlimit *rlim)
 {
 	int ret = CALL_ORIG_FUNC(getrlimit)(resource, rlim);

@@ -1,5 +1,7 @@
 /Release
-/Debug
+*.o
+*.d
+*.so
 
 .cproject
 .project
