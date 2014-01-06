@@ -56,24 +56,64 @@ class FuncInfo:
 
         parse_mode = in_ret_type
         buf = ""
+        buffer_list = []
         bracket_count = 0
         for ch in line:
             if parse_mode == in_ret_type:
-                if ch == " ":    # set ret_type
+                if ch == " ":
+                    if buf != "":
+                        buffer_list.append(buf)
+                        buf = ""
+                elif ch == "*":
                     parse_mode = in_name
-                    self.ret_type = buf
-                    buf = ""
-                else:            # append to buf
+                    if not buffer_list:
+                        debug.p("invalid ret type: " + line)
+                        sys.exit(1)
+                    count = 0
+                    for ret_buf in buffer_list:
+                        if count != 0:
+                            self.ret_type += " "
+                        self.ret_type += ret_buf
+                        count += 1
+                    self.ret_type += " *"
+                    buffer_list = []
+                elif ch == "(":
+                    parse_mode = in_arg
+                    bracket_count += 1
+                    if buf != "":
+                        buffer_list.append(buf)
+                        buf = ""
+                    buffer_list_size = len(buffer_list)
+                    if buffer_list_size <= 1:
+                        debug.p("invalid ret type: " + line)
+                        sys.exit(1)
+                    count = 0
+                    for ret_buf in buffer_list:
+                        if count == buffer_list_size - 1:
+                            break
+                        if count != 0:
+                            self.ret_type += " "
+                        self.ret_type += ret_buf
+                        count += 1
+                    self.func_name = buffer_list[buffer_list_size - 1]
+                    buffer_list = []
+                else:
                     buf += ch
             elif parse_mode == in_name:
-                if ch == "*":    # add pointer symbol
-                    self.ret_type += " " + ch
-                elif ch == " ":  # set func_name
+                if ch == " ":
                     if buf != "":
                         parse_mode = in_arg
                         self.func_name = buf
                         buf = ""
-                else:            # append to buf
+                elif ch == "(":
+                    parse_mode = in_arg
+                    bracket_count += 1
+                    if buf == "":
+                        debug.p("invalid func name: " + line)
+                        sys.exit(1)
+                    self.func_name = buf
+                    buf = ""
+                else:
                     buf += ch
             elif parse_mode == in_arg:
                 if ch == "(":
@@ -110,6 +150,9 @@ class FuncInfo:
                 else:
                     buf += ch
 
+        if not self.options:
+            self.options.append("<f:-1>")
+
     def get_prototype(self):
         proto = self.ret_type + " "
         proto += self.func_name
@@ -133,6 +176,8 @@ class FuncInfo:
 
     def get_args(self):
         args = []
+        if len(self.args_decl) == 1 and self.args_decl[0] == "void":
+            return ""
         for arg_decl in self.args_decl:
             temp = arg_decl.split(" ")
             size = len(temp)
@@ -230,7 +275,7 @@ class FuncType(HeaderBuilder):
             temp = arg_decl.split(" ")
             size = len(temp)
             if size == 1:
-                if temp[0] == "...":
+                if temp[0] == "..." or "void":
                     arg_type = temp[0]
                 else:
                     debug.p("invalid args decl: " + arg_decl)
@@ -373,22 +418,26 @@ def main():
         debug.inc_line_num()
         line = line.expandtabs(4).strip()
         if not in_func:
-            if line.startswith("[header]"):
+            if line.startswith("[h"):
                 debug.p("match: [header] {0}".format(line))
                 header_list.parse(line)
-            elif line.startswith("[func/]"):
+            elif line.startswith("[f"):
                 debug.p("match: [func/]")
                 in_func = True
+            elif line.startswith("["):
+                debug.p("not match: " + line)
             else:
                 debug.p("skip unused line: " + line)
         else:
-            if line.startswith("[/func]"):
+            if line.startswith("[/f"):
                 debug.p("match: [/func]")
                 in_func = False
             elif line == "" or line == "\t" or line == "\n":
                 debug.p("skip empty line")
             elif line.startswith("#") or line.startswith("//"):
                 debug.p("skip one line comment")
+            elif line.startswith("["):
+                debug.p("not match: " + line)
             else:
                 debug.p("parsing at: {0}".format(line))
                 func_info = FuncInfo.create_func_info(line, debug.line_num)
