@@ -7,6 +7,7 @@ void saveFuncs(void **originalFuncTable)
 	SAVE_FUNC(strerror);
 	SAVE_FUNC(strerror_r);
 	SAVE_FUNC(error);
+	SAVE_FUNC(exit);
 	SAVE_FUNC(mmap);
 	SAVE_FUNC(mmap64);
 	SAVE_FUNC(accept);
@@ -20,7 +21,6 @@ void saveFuncs(void **originalFuncTable)
 	SAVE_FUNC(bind);
 	SAVE_FUNC(brk);
 	SAVE_FUNC(sbrk);
-	SAVE_FUNC(cacheflush);
 	SAVE_FUNC(capget);
 	SAVE_FUNC(capset);
 	SAVE_FUNC(chdir);
@@ -47,7 +47,6 @@ void saveFuncs(void **originalFuncTable)
 	SAVE_FUNC(epoll_wait);
 	SAVE_FUNC(epoll_pwait);
 	SAVE_FUNC(eventfd);
-	SAVE_FUNC(exit);
 	SAVE_FUNC(faccessat);
 	SAVE_FUNC(fallocate);
 	SAVE_FUNC(fchmodat);
@@ -99,24 +98,6 @@ void saveFuncs(void **originalFuncTable)
 	SAVE_FUNC(setsockopt);
 	SAVE_FUNC(gettimeofday);
 	SAVE_FUNC(settimeofday);
-	SAVE_FUNC(inb);
-	SAVE_FUNC(inb_p);
-	SAVE_FUNC(inw);
-	SAVE_FUNC(inw_p);
-	SAVE_FUNC(inl);
-	SAVE_FUNC(inl_p);
-	SAVE_FUNC(outb);
-	SAVE_FUNC(outb_p);
-	SAVE_FUNC(outw);
-	SAVE_FUNC(outw_p);
-	SAVE_FUNC(outl);
-	SAVE_FUNC(outl_p);
-	SAVE_FUNC(insb);
-	SAVE_FUNC(insw);
-	SAVE_FUNC(insl);
-	SAVE_FUNC(outsb);
-	SAVE_FUNC(outsw);
-	SAVE_FUNC(outsl);
 	SAVE_FUNC(inotify_add_watch);
 	SAVE_FUNC(inotify_init);
 	SAVE_FUNC(inotify_init1);

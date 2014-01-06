@@ -26,6 +26,7 @@ void saveFuncs(void **originalFuncTable);
 
 static void reportLoadingError(char *funcname)
 {
+	fprintf(stderr, "%s\n", dlerror());
 	char *msgPrefix = "dlsym failed: ";
 	int msgSize = strlen(funcname) + strlen(msgPrefix) + 1;
 	char newMsg[msgSize];
@@ -192,7 +193,7 @@ void initErrorCodeMap()
 static char *getErrorCodeString(int errorNum) {
 	if(errorNum < 0 || errorNum > MAX_ERRNO) {
 		fprintf(stderr, "invalid errno: %d\n", errorNum);
-		exit(1);
+		_exit(1);
 	}
 	char *codeString = (char *)malloc(sizeof(char) * MAX_ERROR_CODE_SIZE);
 	strncpy(codeString, errorCodeTable[errorNum], MAX_ERROR_CODE_SIZE);
@@ -202,10 +203,10 @@ static char *getErrorCodeString(int errorNum) {
 void *loadOriginalFuncion(char *funcname)
 {
 	void *funcp = dlsym(RTLD_NEXT, funcname);
-	if(funcp == NULL) {
-		reportLoadingError(funcname);
-		_exit(1);
-	}
+//	if(funcp == NULL) {
+//		reportLoadingError(funcname);
+//		_exit(1);
+//	}
 	return funcp;
 }
 
@@ -214,7 +215,7 @@ void saveOriginalFunction()
 	char *envValue = getenv(ereportEnv);
 	if(envValue == NULL) {
 		fprintf(stderr, "empty env variable: %s\n", ereportEnv);
-		exit(1);
+		_exit(1);
 	}
 	strncpy(reportFileName, envValue, MAX_FILE_NAME);
 	originalFuncTable = (void **)malloc(sizeof(void *) * originalFuncSize);
@@ -227,7 +228,7 @@ void reportError(int errnum, const char *syscallName)
 	FILE *fp = fopen(reportFileName, "a");
 	if(fp == NULL) {
 		fprintf(stderr, "error report file open faild: %s\n", reportFileName);
-		exit(1);
+		_exit(1);
 	}
 	char *errorCode = getErrorCodeString(errnum);
 	fprintf(fp, "%d::%s::%s::%s\n", getpid(), program_invocation_name, syscallName, errorCode);
@@ -236,9 +237,14 @@ void reportError(int errnum, const char *syscallName)
 	errno = errnoBackup;
 }
 
-void *getOriginalFunction(int index)
+void *getOriginalFunction(int index, char *funcname)
 {
-	return originalFuncTable[index];
+	void *funcp = originalFuncTable[index];
+	if(funcp == NULL) {
+		fprintf(stderr, "get original function faild: %s\n", funcname);
+		_exit(1);
+	}
+	return funcp;
 }
 
 void error_varg(int status, int errnum, const char *format, va_list args)

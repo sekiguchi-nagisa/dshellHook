@@ -218,15 +218,16 @@ class HeaderList(HeaderBuilder):
         header = line.split(" ")[1].strip()
         headerlen = len(header)
         if header[headerlen - 1] == ".":
-            self.buf.append("#include <" + header[:headerlen - 1] + ">\n")
+            temp_header = "#include <" + header[:headerlen - 1] + ">\n"
         elif header[headerlen - 1] == "h":
-            self.buf.append("#include <" + header + ">\n")
+            temp_header = "#include <" + header + ">\n"
         else:
             debug.p("invalid header :" + header + "\n")
             sys.exit(1)
+        if not temp_header in self.buf:
+            self.buf.append(temp_header)
 
     def write_to_file(self):
-        sorted(set(self.buf), key=self.buf.index)
         debug.p_no_line("write to " + self.file_name)
         f = open(self.file_name, "w")
         HeaderBuilder.write_head(self, f)
@@ -434,7 +435,7 @@ def main():
                 in_func = False
             elif line == "" or line == "\t" or line == "\n":
                 debug.p("skip empty line")
-            elif line.startswith("#") or line.startswith("//"):
+            elif line.startswith("#") or line.startswith("//") or line.startswith("/*"):
                 debug.p("skip one line comment")
             elif line.startswith("["):
                 debug.p("not match: " + line)
