@@ -242,6 +242,7 @@ void reportError(int errnum, const char *syscallName)
 
 void *getOriginalFunction(int index, char *funcname)
 {
+	//fprintf(stderr, "get orig func: %s\n", funcname);
 	// init funcTable
 	if(originalFuncTable == NULL) {
 		originalFuncTable = (void **)malloc(sizeof(void *) * originalFuncSize);

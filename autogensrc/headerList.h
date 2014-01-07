@@ -3,7 +3,6 @@
 
 // auto generated header file
 #include <errno.h>
-#include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -19,5 +18,13 @@
 #include <linux/futex.h>
 #include <sys/time.h>
 #include <sys/statvfs.h>
+#include <sys/ptrace.h>
+#include <poll.h>
+#include <sys/resource.h>
+#include <mqueue.h>
+#include <sys/msg.h>
+#include <sys/utsname.h>
+#include <signal.h>
+#include <sched.h>
 
 #endif /* HEADERLIST_H_ */

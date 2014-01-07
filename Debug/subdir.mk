@@ -4,24 +4,18 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../conflict.c \
 ../dshellHook.c \
-../itimer.c \
-../priority.c \
-../rlimit.c \
 ../utils.c 
 
 OBJS += \
+./conflict.o \
 ./dshellHook.o \
-./itimer.o \
-./priority.o \
-./rlimit.o \
 ./utils.o 
 
 C_DEPS += \
+./conflict.d \
 ./dshellHook.d \
-./itimer.d \
-./priority.d \
-./rlimit.d \
 ./utils.d 
 
 
