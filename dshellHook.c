@@ -1,13 +1,6 @@
 #include "utils.h"
 #include "autogensrc/headerList.h"
 
-__attribute__((constructor))
-static void init()
-{
-	initErrorCodeMap();
-	saveOriginalFunction();
-}
-
 // hooked library function
 void perror (const char *message)
 {

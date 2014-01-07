@@ -310,29 +310,6 @@ class FuncType(HeaderBuilder):
         self.buf.append("#define " + func_info.func_name + "_orig_type " + cast)
 
 
-class SaveFunc:
-    def __init__(self):
-        self.file_name = gen_dir + "saveFunc.c"
-        self.buf = []
-
-    def write_to_file(self):
-        debug.p_no_line("write to " + self.file_name)
-        f = open(self.file_name, "w")
-        f.write("#include \"../utils.h\"\n")
-        f.write("\n")
-        f.write("// auto generated source file\n")
-        f.write("void saveFuncs(void **originalFuncTable)\n")
-        f.write("{\n")
-        ## write save func
-        for element in self.buf:
-            f.write("\t" + element)
-        f.write("}\n")
-        f.close()
-
-    def append(self, func_name):
-        self.buf.append("SAVE_FUNC(" + func_name + ");\n")
-
-
 class HookFile:
     def __init__(self):
         self.file_name = gen_dir + "hook.c.txt"
@@ -402,7 +379,6 @@ def main():
     header_list = HeaderList()
     func_index = FuncIndex()
     func_type = FuncType()
-    save_func = SaveFunc()
     hook_file = HookFile()
 
     in_func = False
@@ -446,7 +422,6 @@ def main():
                     continue
                 func_index.append(func_info.func_name)
                 func_type.append(func_info)
-                save_func.append(func_info.func_name)
                 hook_file.append(func_info)
     # generate files in ./autogensrc/
     debug.p_no_line("\n######################")
@@ -455,7 +430,6 @@ def main():
     header_list.write_to_file()
     func_index.write_to_file()
     func_type.write_to_file()
-    save_func.write_to_file()
     hook_file.write_to_file()
 
 if __name__ == '__main__':

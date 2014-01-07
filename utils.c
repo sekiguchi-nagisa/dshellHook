@@ -20,9 +20,7 @@ static char *ereportEnv = "DSHELL_EREPORT";
 static FuncIndex originalFuncSize = func_index_size;
 static char errorCodeTable[MAX_ERRNO][MAX_ERROR_CODE_SIZE];
 static char reportFileName[MAX_FILE_NAME];
-static void **originalFuncTable;	// cannot change this name
-// prototype
-void saveFuncs(void **originalFuncTable);
+static void **originalFuncTable = NULL;	// cannot change this name
 
 static void reportLoadingError(char *funcname)
 {
@@ -49,7 +47,7 @@ static void reportLoadingError(char *funcname)
 	syscall(SYS_write, STDERR_FILENO, newMsg, msgSize);
 }
 
-void initErrorCodeMap()
+static void initErrorCodeTable()
 {
 	static int called = 0;
 	if(called != 0) {
@@ -195,36 +193,41 @@ static char *getErrorCodeString(int errorNum) {
 		fprintf(stderr, "invalid errno: %d\n", errorNum);
 		_exit(1);
 	}
+	initErrorCodeTable();
 	char *codeString = (char *)malloc(sizeof(char) * MAX_ERROR_CODE_SIZE);
 	strncpy(codeString, errorCodeTable[errorNum], MAX_ERROR_CODE_SIZE);
 	return codeString;
 }
 
-void *loadOriginalFuncion(char *funcname)
+static void *loadOriginalFuncion(char *funcname)
 {
 	void *funcp = dlsym(RTLD_NEXT, funcname);
-//	if(funcp == NULL) {
-//		reportLoadingError(funcname);
-//		_exit(1);
-//	}
+	if(funcp == NULL) {
+		reportLoadingError(funcname);
+		_exit(1);
+	}
 	return funcp;
 }
 
-void saveOriginalFunction()
+static void initReportFile()
 {
+	static int called = 0;
+	if(called != 0) {
+		return;
+	}
+	called = 1;
 	char *envValue = getenv(ereportEnv);
 	if(envValue == NULL) {
 		fprintf(stderr, "empty env variable: %s\n", ereportEnv);
 		_exit(1);
 	}
 	strncpy(reportFileName, envValue, MAX_FILE_NAME);
-	originalFuncTable = (void **)malloc(sizeof(void *) * originalFuncSize);
-	saveFuncs(originalFuncTable);
 }
 
 void reportError(int errnum, const char *syscallName)
 {
 	int errnoBackup = errno;
+	initReportFile();
 	FILE *fp = fopen(reportFileName, "a");
 	if(fp == NULL) {
 		fprintf(stderr, "error report file open faild: %s\n", reportFileName);
@@ -239,10 +242,18 @@ void reportError(int errnum, const char *syscallName)
 
 void *getOriginalFunction(int index, char *funcname)
 {
+	// init funcTable
+	if(originalFuncTable == NULL) {
+		originalFuncTable = (void **)malloc(sizeof(void *) * originalFuncSize);
+		int i;
+		for(i = 0; i < originalFuncSize; i++) {
+			originalFuncTable[i] = NULL;
+		}
+	}
 	void *funcp = originalFuncTable[index];
 	if(funcp == NULL) {
-		fprintf(stderr, "get original function faild: %s\n", funcname);
-		_exit(1);
+		funcp = loadOriginalFuncion(funcname);
+		originalFuncTable[index] = funcp;
 	}
 	return funcp;
 }

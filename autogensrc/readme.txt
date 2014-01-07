@@ -1,15 +1,3 @@
-################ autogensrc/saveFunc.c ################
-
-#include "../define.h"
-
-// auto generated source file
-void saveFuncs(void **orignalFuncTable)
-{
-
-}
-
-################ end of file ################
-
 ################ autogensrc/funcType.h ################
 
 #ifndef FUNCTYPE_H_
