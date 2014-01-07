@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import re
 
 gen_dir = "./autogensrc/"
 
@@ -376,6 +377,7 @@ def main():
         debug.p_no_line("need target file")
         sys.exit(1)
 
+    pattern = re.compile(".+TODO")
     header_list = HeaderList()
     func_index = FuncIndex()
     func_type = FuncType()
@@ -412,7 +414,10 @@ def main():
             elif line == "" or line == "\t" or line == "\n":
                 debug.p("skip empty line")
             elif line.startswith("#") or line.startswith("//") or line.startswith("/*"):
-                debug.p("skip one line comment")
+                if pattern.match(line):
+                    debug.p("=== TODO === " + line)
+                else:
+                    debug.p("skip one line comment")
             elif line.startswith("["):
                 debug.p("not match: " + line)
             else:

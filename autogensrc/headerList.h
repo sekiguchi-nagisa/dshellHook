@@ -15,12 +15,9 @@
 #include <time.h>
 #include <sys/epoll.h>
 #include <sys/vfs.h>
-#include <sys/statvfs.h>
+#include <grp.h>
 #include <linux/futex.h>
 #include <sys/time.h>
-#include <grp.h>
-#include <sys/resource.h>
-#include <sys/inotify.h>
-#include <sys/ioctl.h>
+#include <sys/statvfs.h>
 
 #endif /* HEADERLIST_H_ */
