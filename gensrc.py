@@ -180,13 +180,21 @@ class FuncInfo:
         if len(self.args_decl) == 1 and self.args_decl[0] == "void":
             return ""
         for arg_decl in self.args_decl:
-            temp = arg_decl.split(" ")
-            size = len(temp)
-            arg = temp[size - 1]
-            if arg.startswith("*"):
-                args.append(arg[1:])
-            else:
-                args.append(arg)
+            arg_decl_list = arg_decl.split(" ")
+            size = len(arg_decl_list)
+            arg = arg_decl_list[size - 1]
+            index = 0
+            for ch in arg:
+                if ch != "*":
+                    break
+                index += 1
+            temp_arg = arg[index:]
+            index = 0
+            for ch in temp_arg:
+                if ch == "[":
+                    break
+                index += 1
+            args.append(temp_arg[0:index])
         return args
 
 
@@ -274,27 +282,45 @@ class FuncType(HeaderBuilder):
         type_list = []
         for arg_decl in func_info.args_decl:
             arg_type = ""
-            temp = arg_decl.split(" ")
-            size = len(temp)
+            arg_decl_list = arg_decl.split(" ")
+            size = len(arg_decl_list)
             if size == 1:
-                if temp[0] == "..." or "void":
-                    arg_type = temp[0]
+                if arg_decl_list[0] == "..." or "void":
+                    arg_type = arg_decl_list[0]
                 else:
                     debug.p("invalid args decl: " + arg_decl)
                     sys.exit(1)
-            elif size == 2:
-                arg_type = temp[0]
-                if temp[1].startswith("*"):
-                    arg_type += " *"
-            elif size > 2:
+            elif size >= 2:
                 i = 0
                 while i < size - 1:
                     if i != 0:
                         arg_type += " "
-                    arg_type += temp[i]
+                    arg_type += arg_decl_list[i]
                     i += 1
-                if temp[size - 1].startswith("*"):
-                    arg_type += " *"
+                bracket_count = 0
+                i = 0
+                for ch in arg_decl_list[size - 1]:
+                    if ch == "*":
+                        if i == 0:
+                            arg_type += " "
+                        arg_type += ch
+                    elif ch == "[":
+                        bracket_count += 1
+                        if bracket_count != 1:
+                            debug.p("invalid args decl: " + arg_decl)
+                            sys.exit(1)
+                        arg_type += ch
+                    elif ch == "]":
+                        bracket_count -= 1
+                        if bracket_count != 0:
+                            debug.p("invalid args decl: " + arg_decl)
+                            sys.exit(1)
+                        arg_type += ch
+                        bracket_count = 0
+                    else:
+                        if bracket_count == 1:
+                            arg_type += ch
+                    i += 1
             else:
                 debug.p("invalid args decl: " + arg_decl)
                 sys.exit(1)
