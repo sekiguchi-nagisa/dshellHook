@@ -85,3 +85,35 @@ int recvmmsg(int sockfd, struct mmsghdr *msgvec, unsigned int vlen, unsigned int
 	}
 	return ret;
 }
+
+int sendmmsg(int sockfd, struct mmsghdr *msgvec, unsigned int vlen, unsigned int flags)
+{
+	int ret = CALL_ORIG_FUNC(sendmmsg)(sockfd, msgvec, vlen, flags);
+	if(ret == (int)-1) {
+		reportError(errno, "sendmmsg");
+	}
+	return ret;
+}
+
+struct sembuf;
+struct timespec;
+
+int semop(int semid, struct sembuf *sops, unsigned nsops)
+{
+	int ret = CALL_ORIG_FUNC(semop)(semid, sops, nsops);
+	if(ret == (int)-1) {
+		reportError(errno, "semop");
+	}
+	return ret;
+}
+
+int semtimedop(int semid, struct sembuf *sops, unsigned nsops, struct timespec *timeout)
+{
+	int ret = CALL_ORIG_FUNC(semtimedop)(semid, sops, nsops, timeout);
+	if(ret == (int)-1) {
+		reportError(errno, "semtimedop");
+	}
+	return ret;
+}
+
+

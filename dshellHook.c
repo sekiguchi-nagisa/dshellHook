@@ -1667,3 +1667,579 @@ int sched_getscheduler(pid_t pid)
 	}
 	return ret;
 }
+
+int sched_rr_get_interval(pid_t pid, struct timespec * tp)
+{
+	int ret = CALL_ORIG_FUNC(sched_rr_get_interval)(pid, tp);
+	if(ret == (int)-1) {
+		reportError(errno, "sched_rr_get_interval");
+	}
+	return ret;
+}
+
+int sched_yield(void)
+{
+	int ret = CALL_ORIG_FUNC(sched_yield)();
+	if(ret == (int)-1) {
+		reportError(errno, "sched_yield");
+	}
+	return ret;
+}
+
+int semget(key_t key, int nsems, int semflg)
+{
+	int ret = CALL_ORIG_FUNC(semget)(key, nsems, semflg);
+	if(ret == (int)-1) {
+		reportError(errno, "semget");
+	}
+	return ret;
+}
+
+ssize_t send(int sockfd, const void *buf, size_t len, int flags)
+{
+	ssize_t ret = CALL_ORIG_FUNC(send)(sockfd, buf, len, flags);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "send");
+	}
+	return ret;
+}
+
+ssize_t sendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
+{
+	ssize_t ret = CALL_ORIG_FUNC(sendto)(sockfd, buf, len, flags, dest_addr, addrlen);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "sendto");
+	}
+	return ret;
+}
+
+ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
+{
+	ssize_t ret = CALL_ORIG_FUNC(sendmsg)(sockfd, msg, flags);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "sendmsg");
+	}
+	return ret;
+}
+
+ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
+{
+	ssize_t ret = CALL_ORIG_FUNC(sendfile)(out_fd, in_fd, offset, count);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "sendfile");
+	}
+	return ret;
+}
+
+int seteuid(uid_t euid)
+{
+	int ret = CALL_ORIG_FUNC(seteuid)(euid);
+	if(ret == (int)-1) {
+		reportError(errno, "seteuid");
+	}
+	return ret;
+}
+
+int setegid(gid_t egid)
+{
+	int ret = CALL_ORIG_FUNC(setegid)(egid);
+	if(ret == (int)-1) {
+		reportError(errno, "setegid");
+	}
+	return ret;
+}
+
+int setfsgid(uid_t fsgid)
+{
+	int ret = CALL_ORIG_FUNC(setfsgid)(fsgid);
+	if(ret == (int)-1) {
+		reportError(errno, "setfsgid");
+	}
+	return ret;
+}
+
+int setfsuid(uid_t fsuid)
+{
+	int ret = CALL_ORIG_FUNC(setfsuid)(fsuid);
+	if(ret == (int)-1) {
+		reportError(errno, "setfsuid");
+	}
+	return ret;
+}
+
+int set_mempolicy(int mode, unsigned long *nodemask, unsigned long maxnode)
+{
+	int ret = CALL_ORIG_FUNC(set_mempolicy)(mode, nodemask, maxnode);
+	if(ret == (int)-1) {
+		reportError(errno, "set_mempolicy");
+	}
+	return ret;
+}
+
+int setns(int fd, int nstype)
+{
+	int ret = CALL_ORIG_FUNC(setns)(fd, nstype);
+	if(ret == (int)-1) {
+		reportError(errno, "setns");
+	}
+	return ret;
+}
+
+int setreuid(uid_t ruid, uid_t euid)
+{
+	int ret = CALL_ORIG_FUNC(setreuid)(ruid, euid);
+	if(ret == (int)-1) {
+		reportError(errno, "setreuid");
+	}
+	return ret;
+}
+
+int setregid(gid_t rgid, gid_t egid)
+{
+	int ret = CALL_ORIG_FUNC(setregid)(rgid, egid);
+	if(ret == (int)-1) {
+		reportError(errno, "setregid");
+	}
+	return ret;
+}
+
+int setresuid(uid_t ruid, uid_t euid, uid_t suid)
+{
+	int ret = CALL_ORIG_FUNC(setresuid)(ruid, euid, suid);
+	if(ret == (int)-1) {
+		reportError(errno, "setresuid");
+	}
+	return ret;
+}
+
+int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
+{
+	int ret = CALL_ORIG_FUNC(setresgid)(rgid, egid, sgid);
+	if(ret == (int)-1) {
+		reportError(errno, "setresgid");
+	}
+	return ret;
+}
+
+pid_t setsid(void)
+{
+	pid_t ret = CALL_ORIG_FUNC(setsid)();
+	if(ret == (pid_t)-1) {
+		reportError(errno, "setsid");
+	}
+	return ret;
+}
+
+int setuid(uid_t uid)
+{
+	int ret = CALL_ORIG_FUNC(setuid)(uid);
+	if(ret == (int)-1) {
+		reportError(errno, "setuid");
+	}
+	return ret;
+}
+
+void * shmat(int shmid, const void *shmaddr, int shmflg)
+{
+	void * ret = CALL_ORIG_FUNC(shmat)(shmid, shmaddr, shmflg);
+	if(ret == (void *)-1) {
+		reportError(errno, "shmat");
+	}
+	return ret;
+}
+
+int shmdt(const void *shmaddr)
+{
+	int ret = CALL_ORIG_FUNC(shmdt)(shmaddr);
+	if(ret == (int)-1) {
+		reportError(errno, "shmdt");
+	}
+	return ret;
+}
+
+int shmctl(int shmid, int cmd, struct shmid_ds *buf)
+{
+	int ret = CALL_ORIG_FUNC(shmctl)(shmid, cmd, buf);
+	if(ret == (int)-1) {
+		reportError(errno, "shmctl");
+	}
+	return ret;
+}
+
+int shmget(key_t key, size_t size, int shmflg)
+{
+	int ret = CALL_ORIG_FUNC(shmget)(key, size, shmflg);
+	if(ret == (int)-1) {
+		reportError(errno, "shmget");
+	}
+	return ret;
+}
+
+int shutdown(int sockfd, int how)
+{
+	int ret = CALL_ORIG_FUNC(shutdown)(sockfd, how);
+	if(ret == (int)-1) {
+		reportError(errno, "shutdown");
+	}
+	return ret;
+}
+
+int sigaltstack(const stack_t *ss, stack_t *oss)
+{
+	int ret = CALL_ORIG_FUNC(sigaltstack)(ss, oss);
+	if(ret == (int)-1) {
+		reportError(errno, "sigaltstack");
+	}
+	return ret;
+}
+
+sighandler_t signal(int signum, sighandler_t handler)
+{
+	sighandler_t ret = CALL_ORIG_FUNC(signal)(signum, handler);
+	if(ret == (sighandler_t)-1) {
+		reportError(errno, "signal");
+	}
+	return ret;
+}
+
+int signalfd(int fd, const sigset_t *mask, int flags)
+{
+	int ret = CALL_ORIG_FUNC(signalfd)(fd, mask, flags);
+	if(ret == (int)-1) {
+		reportError(errno, "signalfd");
+	}
+	return ret;
+}
+
+int sigqueue(pid_t pid, int sig, const union sigval value)
+{
+	int ret = CALL_ORIG_FUNC(sigqueue)(pid, sig, value);
+	if(ret == (int)-1) {
+		reportError(errno, "sigqueue");
+	}
+	return ret;
+}
+
+int socket(int domain, int type, int protocol)
+{
+	int ret = CALL_ORIG_FUNC(socket)(domain, type, protocol);
+	if(ret == (int)-1) {
+		reportError(errno, "socket");
+	}
+	return ret;
+}
+
+ssize_t splice(int fd_in, loff_t *off_in, int fd_out, loff_t *off_out, size_t len, unsigned int flags)
+{
+	ssize_t ret = CALL_ORIG_FUNC(splice)(fd_in, off_in, fd_out, off_out, len, flags);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "splice");
+	}
+	return ret;
+}
+
+int stime(const time_t *t)
+{
+	int ret = CALL_ORIG_FUNC(stime)(t);
+	if(ret == (int)-1) {
+		reportError(errno, "stime");
+	}
+	return ret;
+}
+
+int swapon(const char *path, int swapflags)
+{
+	int ret = CALL_ORIG_FUNC(swapon)(path, swapflags);
+	if(ret == (int)-1) {
+		reportError(errno, "swapon");
+	}
+	return ret;
+}
+
+int swapoff(const char *path)
+{
+	int ret = CALL_ORIG_FUNC(swapoff)(path);
+	if(ret == (int)-1) {
+		reportError(errno, "swapoff");
+	}
+	return ret;
+}
+
+int symlink(const char *target, const char *linkpath)
+{
+	int ret = CALL_ORIG_FUNC(symlink)(target, linkpath);
+	if(ret == (int)-1) {
+		reportError(errno, "symlink");
+	}
+	return ret;
+}
+
+int symlinkat(const char *oldpath, int newdirfd, const char *newpath)
+{
+	int ret = CALL_ORIG_FUNC(symlinkat)(oldpath, newdirfd, newpath);
+	if(ret == (int)-1) {
+		reportError(errno, "symlinkat");
+	}
+	return ret;
+}
+
+int syncfs(int fd)
+{
+	int ret = CALL_ORIG_FUNC(syncfs)(fd);
+	if(ret == (int)-1) {
+		reportError(errno, "syncfs");
+	}
+	return ret;
+}
+
+int sysinfo(struct sysinfo *info)
+{
+	int ret = CALL_ORIG_FUNC(sysinfo)(info);
+	if(ret == (int)-1) {
+		reportError(errno, "sysinfo");
+	}
+	return ret;
+}
+
+int klogctl(int type, char *bufp, int len)
+{
+	int ret = CALL_ORIG_FUNC(klogctl)(type, bufp, len);
+	if(ret == (int)-1) {
+		reportError(errno, "klogctl");
+	}
+	return ret;
+}
+
+ssize_t tee(int fd_in, int fd_out, size_t len, unsigned int flags)
+{
+	ssize_t ret = CALL_ORIG_FUNC(tee)(fd_in, fd_out, len, flags);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "tee");
+	}
+	return ret;
+}
+
+time_t time(time_t *t)
+{
+	time_t ret = CALL_ORIG_FUNC(time)(t);
+	if(ret == (time_t)-1) {
+		reportError(errno, "time");
+	}
+	return ret;
+}
+
+int timer_create(clockid_t clockid, struct sigevent *sevp, timer_t *timerid)
+{
+	int ret = CALL_ORIG_FUNC(timer_create)(clockid, sevp, timerid);
+	if(ret == (int)-1) {
+		reportError(errno, "timer_create");
+	}
+	return ret;
+}
+
+int timer_delete(timer_t timerid)
+{
+	int ret = CALL_ORIG_FUNC(timer_delete)(timerid);
+	if(ret == (int)-1) {
+		reportError(errno, "timer_delete");
+	}
+	return ret;
+}
+
+int timerfd_create(int clockid, int flags)
+{
+	int ret = CALL_ORIG_FUNC(timerfd_create)(clockid, flags);
+	if(ret == (int)-1) {
+		reportError(errno, "timerfd_create");
+	}
+	return ret;
+}
+
+int timerfd_settime(int fd, int flags, const struct itimerspec *new_value, struct itimerspec *old_value)
+{
+	int ret = CALL_ORIG_FUNC(timerfd_settime)(fd, flags, new_value, old_value);
+	if(ret == (int)-1) {
+		reportError(errno, "timerfd_settime");
+	}
+	return ret;
+}
+
+int timerfd_gettime(int fd, struct itimerspec *curr_value)
+{
+	int ret = CALL_ORIG_FUNC(timerfd_gettime)(fd, curr_value);
+	if(ret == (int)-1) {
+		reportError(errno, "timerfd_gettime");
+	}
+	return ret;
+}
+
+int timer_getoverrun(timer_t timerid)
+{
+	int ret = CALL_ORIG_FUNC(timer_getoverrun)(timerid);
+	if(ret == (int)-1) {
+		reportError(errno, "timer_getoverrun");
+	}
+	return ret;
+}
+
+int timer_settime(timer_t timerid, int flags, const struct itimerspec *new_value, struct itimerspec * old_value)
+{
+	int ret = CALL_ORIG_FUNC(timer_settime)(timerid, flags, new_value, old_value);
+	if(ret == (int)-1) {
+		reportError(errno, "timer_settime");
+	}
+	return ret;
+}
+
+int timer_gettime(timer_t timerid, struct itimerspec *curr_value)
+{
+	int ret = CALL_ORIG_FUNC(timer_gettime)(timerid, curr_value);
+	if(ret == (int)-1) {
+		reportError(errno, "timer_gettime");
+	}
+	return ret;
+}
+
+clock_t times(struct tms *buf)
+{
+	clock_t ret = CALL_ORIG_FUNC(times)(buf);
+	if(ret == (clock_t)-1) {
+		reportError(errno, "times");
+	}
+	return ret;
+}
+
+mode_t umask(mode_t mask)
+{
+	mode_t ret = CALL_ORIG_FUNC(umask)(mask);
+	if(ret == (mode_t)-1) {
+		reportError(errno, "umask");
+	}
+	return ret;
+}
+
+int umount(const char *target)
+{
+	int ret = CALL_ORIG_FUNC(umount)(target);
+	if(ret == (int)-1) {
+		reportError(errno, "umount");
+	}
+	return ret;
+}
+
+int umount2(const char *target, int flags)
+{
+	int ret = CALL_ORIG_FUNC(umount2)(target, flags);
+	if(ret == (int)-1) {
+		reportError(errno, "umount2");
+	}
+	return ret;
+}
+
+int unlink(const char *pathname)
+{
+	int ret = CALL_ORIG_FUNC(unlink)(pathname);
+	if(ret == (int)-1) {
+		reportError(errno, "unlink");
+	}
+	return ret;
+}
+
+int unlinkat(int dirfd, const char *pathname, int flags)
+{
+	int ret = CALL_ORIG_FUNC(unlinkat)(dirfd, pathname, flags);
+	if(ret == (int)-1) {
+		reportError(errno, "unlinkat");
+	}
+	return ret;
+}
+
+int unshare(int flags)
+{
+	int ret = CALL_ORIG_FUNC(unshare)(flags);
+	if(ret == (int)-1) {
+		reportError(errno, "unshare");
+	}
+	return ret;
+}
+
+int uselib(const char *library)
+{
+	int ret = CALL_ORIG_FUNC(uselib)(library);
+	if(ret == (int)-1) {
+		reportError(errno, "uselib");
+	}
+	return ret;
+}
+
+int ustat(dev_t dev, struct ustat *ubuf)
+{
+	int ret = CALL_ORIG_FUNC(ustat)(dev, ubuf);
+	if(ret == (int)-1) {
+		reportError(errno, "ustat");
+	}
+	return ret;
+}
+
+int utime(const char *filename, const struct utimbuf *times)
+{
+	int ret = CALL_ORIG_FUNC(utime)(filename, times);
+	if(ret == (int)-1) {
+		reportError(errno, "utime");
+	}
+	return ret;
+}
+
+int vhangup(void)
+{
+	int ret = CALL_ORIG_FUNC(vhangup)();
+	if(ret == (int)-1) {
+		reportError(errno, "vhangup");
+	}
+	return ret;
+}
+
+ssize_t vmsplice(int fd, const struct iovec *iov, unsigned long nr_segs, unsigned int flags)
+{
+	ssize_t ret = CALL_ORIG_FUNC(vmsplice)(fd, iov, nr_segs, flags);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "vmsplice");
+	}
+	return ret;
+}
+
+pid_t wait(int *status)
+{
+	pid_t ret = CALL_ORIG_FUNC(wait)(status);
+	if(ret == (pid_t)-1) {
+		reportError(errno, "wait");
+	}
+	return ret;
+}
+
+pid_t waitpid(pid_t pid, int *status, int options)
+{
+	pid_t ret = CALL_ORIG_FUNC(waitpid)(pid, status, options);
+	if(ret == (pid_t)-1) {
+		reportError(errno, "waitpid");
+	}
+	return ret;
+}
+
+int waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options)
+{
+	int ret = CALL_ORIG_FUNC(waitid)(idtype, id, infop, options);
+	if(ret == (int)-1) {
+		reportError(errno, "waitid");
+	}
+	return ret;
+}
+
+ssize_t write(int fd, const void *buf, size_t count)
+{
+	ssize_t ret = CALL_ORIG_FUNC(write)(fd, buf, count);
+	if(ret == (ssize_t)-1) {
+		reportError(errno, "write");
+	}
+	return ret;
+}

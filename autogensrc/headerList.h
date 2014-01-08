@@ -26,5 +26,12 @@
 #include <sys/utsname.h>
 #include <signal.h>
 #include <sched.h>
+#include <sys/sysinfo.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
+#include <sys/times.h>
+#include <ustat.h>
+#include <utime.h>
+#include <sys/wait.h>
 
 #endif /* HEADERLIST_H_ */
